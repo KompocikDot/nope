@@ -10,15 +10,15 @@ import (
 )
 
 type todo struct {
-	completed   bool
-	description string
+	Completed   bool   `json:"completed"`
+	Description string `json:"description"`
 }
 
-func (t todo) FilterValue() string { return t.description }
-func (t todo) String() string      { return t.description }
-func (t *todo) ToggleComplete()    { t.completed = !t.completed }
+func (t todo) FilterValue() string { return t.Description }
+func (t todo) String() string      { return t.Description }
+func (t *todo) ToggleComplete()    { t.Completed = !t.Completed }
 
-func NewTodo(description string) todo { return todo{description: description} }
+func NewTodo(description string) todo { return todo{Description: description} }
 
 type todoDelegate struct{}
 
@@ -33,7 +33,7 @@ func (d todoDelegate) Render(w io.Writer, m list.Model, index int, listItem list
 	}
 
 	fn := func(s ...string) string {
-		if t.completed {
+		if t.Completed {
 			return completedItemStyle.Render(strings.Join(s, " "))
 		}
 		return itemStyle.Render(strings.Join(s, " "))
@@ -42,7 +42,7 @@ func (d todoDelegate) Render(w io.Writer, m list.Model, index int, listItem list
 
 	if index == m.Index() {
 		fn = func(s ...string) string {
-			if t.completed {
+			if t.Completed {
 				return completedSelectedItemStyle.Render("> " + strings.Join(s, " "))
 			}
 

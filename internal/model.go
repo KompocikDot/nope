@@ -45,7 +45,7 @@ func (m NopeModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.mode = MODE_EDIT
 			current := m.list.SelectedItem().(todo)
 
-			m.input.SetValue(current.description)
+			m.input.SetValue(current.Description)
 			m.input.Focus()
 
 		case "enter":
@@ -62,7 +62,17 @@ func (m NopeModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "i":
 			m.input.Focus()
 			m.mode = MODE_INSERT
+
+		case "tab":
+			listItems := m.list.Items()
+			todos := make([]todo, len(listItems))
+			for index, item := range listItems {
+				todos[index] = item.(todo)
+			}
+
+			SaveTodos(todos)
 		}
+
 	}
 
 	var cmd tea.Cmd
@@ -109,8 +119,8 @@ func (m NopeModel) View() string {
 
 func NewNopeModel() *NopeModel {
 	li := list.New([]list.Item{
-		todo{description: "add inputs"},
-		todo{description: "delete items"},
+		todo{Description: "add inputs"},
+		todo{Description: "delete items"},
 	}, todoDelegate{}, 14, 20)
 
 	li.SetShowStatusBar(false)
