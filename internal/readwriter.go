@@ -2,11 +2,12 @@ package internal
 
 import (
 	"encoding/json"
+	"io"
 	"os"
 	"path"
 )
 
-func SaveTodos(todos []todo) {
+func getOrCreateTodosPath() string {
 	dir, err := os.UserCacheDir()
 	if err != nil {
 		panic(err)
@@ -18,6 +19,12 @@ func SaveTodos(todos []todo) {
 	}
 
 	filePath := path.Join(dir, "nope", "todos.nope")
+
+	return filePath
+}
+
+func SaveTodos(todos []todo) {
+	filePath := getOrCreateTodosPath()
 	f, err := os.Create(filePath)
 	defer f.Close()
 
@@ -31,15 +38,20 @@ func SaveTodos(todos []todo) {
 	}
 }
 
-func ReadTodos() []todo {
-	f, err := os.Open("todos.nope")
+func ReadTodos() *[]todo {
+	filePath := getOrCreateTodosPath()
+	f, err := os.Open(filePath)
 	defer f.Close()
+
 	if err != nil {
 		panic(err)
 	}
 
-	out := []todo{}
-	err = json.NewDecoder(f).Decode(&out)
+	out := new([]todo)
 
+	err = json.NewDecoder(f).Decode(out)
+	if err != nil && err != io.EOF {
+		panic(err)
+	}
 	return out
 }

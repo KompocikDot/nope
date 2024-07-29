@@ -38,6 +38,13 @@ func (m NopeModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		switch msg.String() {
 		case "ctrl+c":
+			items := m.list.Items()
+			todos := make([]todo, len(items))
+			for index, item := range items {
+				todos[index] = item.(todo)
+			}
+
+			SaveTodos(todos)
 			return m, tea.Quit
 		case "d":
 			m.list.RemoveItem(m.list.Index())
@@ -84,6 +91,14 @@ func nonBrowseActions(m NopeModel, msg tea.KeyMsg) (tea.Model, tea.Cmd) {
 	switch msg.String() {
 	case "esc":
 		m.mode = MODE_BROWSE
+		items := m.list.Items()
+		todos := make([]todo, len(items))
+		for index, item := range items {
+			todos[index] = item.(todo)
+		}
+
+		SaveTodos(todos)
+
 		return m, nil
 	case "enter":
 		newValue := m.input.Value()
@@ -117,11 +132,19 @@ func (m NopeModel) View() string {
 	return out + browseModeTagStyle.Render(string(m.mode))
 }
 
-func NewNopeModel() *NopeModel {
-	li := list.New([]list.Item{
-		todo{Description: "add inputs"},
-		todo{Description: "delete items"},
-	}, todoDelegate{}, 14, 20)
+func NewNopeModel(todos *[]todo) *NopeModel {
+	var li list.Model
+
+	if todos != nil {
+		items := make([]list.Item, len(*todos))
+		for i, t := range *todos {
+			items[i] = t
+		}
+
+		li = list.New(items, todoDelegate{}, 14, 20)
+	} else {
+		li = list.New([]list.Item{}, todoDelegate{}, 14, 20)
+	}
 
 	li.SetShowStatusBar(false)
 	li.SetShowTitle(false)

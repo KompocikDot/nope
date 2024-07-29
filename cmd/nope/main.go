@@ -9,7 +9,10 @@ import (
 )
 
 func main() {
-	if _, err := tea.NewProgram(*internal.NewNopeModel()).Run(); err != nil {
+	savedTodos := internal.ReadTodos()
+	model := internal.NewNopeModel(savedTodos)
+
+	if _, err := tea.NewProgram(*model).Run(); err != nil {
 		fmt.Println("Error running program:", err)
 		os.Exit(1)
 	}
